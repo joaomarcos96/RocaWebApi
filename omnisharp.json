@@ -1,0 +1,14 @@
+{
+  "RoslynExtensionsOptions": {
+    "EnableAnalyzersSupport": true
+  },
+  "FormattingOptions": {
+    "EnableEditorConfigSupport": true,
+    "OrganizeImports": true
+  },
+  "RenameOptions": {
+    "RenameInComments": true,
+    "RenameOverloads": true,
+    "RenameInStrings": true
+  }
+}

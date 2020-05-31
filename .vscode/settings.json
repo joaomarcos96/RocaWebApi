@@ -1,0 +1,35 @@
+{
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "breadcrumbs.enabled": true,
+  "debug.toolBarLocation": "docked",
+  "editor.fontLigatures": false,
+  "editor.fontSize": 13,
+  "editor.formatOnSave": true,
+  "editor.minimap.enabled": false,
+  "editor.parameterHints.enabled": false,
+  "editor.renderLineHighlight": "gutter",
+  "editor.rulers": [
+    80,
+    120
+  ],
+  "explorer.autoReveal": false,
+  "explorer.openEditors.visible": 0,
+  "extensions.ignoreRecommendations": false,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "javascript.format.enable": false,
+  "omnisharp.enableEditorConfigSupport": true,
+  "omnisharp.enableRoslynAnalyzers": true,
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.rendererType": "dom",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "window.menuBarVisibility": "default",
+  "window.zoomLevel": 0,
+  "workbench.activityBar.visible": true,
+  "workbench.editor.enablePreview": false,
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.statusBar.visible": true,
+  "workbench.view.alwaysShowHeaderActions": true
+}
