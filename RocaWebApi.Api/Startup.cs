@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace RocaWebApi.Api
 {
@@ -67,6 +68,11 @@ namespace RocaWebApi.Api
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Roça Web API", Version = "v1" });
+            });
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options
@@ -94,7 +100,7 @@ namespace RocaWebApi.Api
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Roca Web API"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Roça Web API"));
 
             app.UseRouting();
 
