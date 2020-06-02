@@ -1,6 +1,7 @@
 using System;
 using System.Data.Common;
 using System.Net.Http;
+using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
@@ -17,6 +18,8 @@ namespace RocaWebApi.Tests
         private readonly TestServer _server;
 
         public HttpClient Client { get; }
+
+        public JsonSerializerOptions DefaultJsonSerializerOptions { get; private set; }
 
         public TestFixture()
         {
@@ -48,6 +51,11 @@ namespace RocaWebApi.Tests
             _server = new TestServer(builder);
 
             Client = _server.CreateClient();
+
+            DefaultJsonSerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
         }
 
         public void Dispose()

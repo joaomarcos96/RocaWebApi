@@ -14,10 +14,12 @@ namespace RocaWebApi.Tests.Features.Workers
         private const string RESOURCE_URL = "/api/workers";
 
         private readonly HttpClient _client;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public WorkersControllerTest(TestFixture fixture)
         {
             _client = fixture.Client;
+            _jsonOptions = fixture.DefaultJsonSerializerOptions;
         }
 
         [Fact]
@@ -39,15 +41,13 @@ namespace RocaWebApi.Tests.Features.Workers
         [Fact]
         public async Task Get_newly_created_worker_should_return_that_worker()
         {
-            var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
             var responseForPostValidWorker = await PostValidWorker();
             var jsonForPostWorker = await responseForPostValidWorker.Content.ReadAsStringAsync();
-            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, jsonOptions);
+            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, _jsonOptions);
 
             var responseForGetWorker = await _client.GetAsync($"{RESOURCE_URL}/{createdWorker.Id}");
             var jsonForGetWorker = await responseForGetWorker.Content.ReadAsStringAsync();
-            var returnedWorker = JsonSerializer.Deserialize<Worker>(jsonForGetWorker, jsonOptions);
+            var returnedWorker = JsonSerializer.Deserialize<Worker>(jsonForGetWorker, _jsonOptions);
 
             Assert.Equal(returnedWorker.Id, createdWorker.Id);
 
@@ -62,6 +62,28 @@ namespace RocaWebApi.Tests.Features.Workers
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Missing_required_property_post_should_return_unprocessable_entity()
+        {
+            var json = JsonSerializer.Serialize(new Worker(), _jsonOptions);
+
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(RESOURCE_URL, stringContent);
+
+            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Null_json_body_should_return_bad_request()
+        {
+            var stringContent = new StringContent("null", Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(RESOURCE_URL, stringContent);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
         private Task<HttpResponseMessage> PostValidWorker()
         {
             var json = JsonSerializer.Serialize(new Worker
@@ -69,23 +91,11 @@ namespace RocaWebApi.Tests.Features.Workers
                 Name = "Lúcãs com âçénto",
                 Phone = "(35) 12345-6789",
                 Address = "Distrito de Costas - MG"
-            });
+            }, _jsonOptions);
 
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
             return _client.PostAsync(RESOURCE_URL, stringContent);
-        }
-
-        [Fact]
-        public async Task Missing_required_property_post_should_return_unprocessable_entity()
-        {
-            var json = JsonSerializer.Serialize(new Worker());
-
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _client.PostAsync(RESOURCE_URL, stringContent);
-
-            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
         }
     }
 }
