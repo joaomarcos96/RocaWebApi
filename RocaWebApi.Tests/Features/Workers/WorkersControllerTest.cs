@@ -84,6 +84,26 @@ namespace RocaWebApi.Tests.Features.Workers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_delete_worker()
+        {
+            var responseForPostValidWorker = await PostValidWorker();
+            var jsonForPostWorker = await responseForPostValidWorker.Content.ReadAsStringAsync();
+            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, _jsonOptions);
+
+            var responseForDeleteWorker = await _client.DeleteAsync($"{RESOURCE_URL}/{createdWorker.Id}");
+
+            Assert.Equal(HttpStatusCode.NoContent, responseForDeleteWorker.StatusCode);
+        }
+
+        [Fact]
+        public async Task Delete_worker_that_does_not_exist_should_return_not_found()
+        {
+            var response = await _client.DeleteAsync($"{RESOURCE_URL}/0");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
         private Task<HttpResponseMessage> PostValidWorker()
         {
             var json = JsonSerializer.Serialize(new Worker

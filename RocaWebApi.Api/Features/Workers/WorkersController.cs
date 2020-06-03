@@ -45,12 +45,26 @@ namespace RocaWebApi.Api.Features.Workers
             var workerEntity = _mapper.Map<Worker>(workerDto);
 
             _dbContext.Workers.Add(workerEntity);
-
             await _dbContext.SaveChangesAsync();
 
             var worker = _mapper.Map<WorkerDto>(workerEntity);
 
             return CreatedAtRoute("GetWorker", new { workerId = worker.Id }, worker);
+        }
+
+        [HttpDelete("{workerId}")]
+        public async Task<ActionResult> DeleteAuthor(int workerId)
+        {
+            var worker = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
+            if (worker == null)
+            {
+                return NotFound();
+            }
+
+            _dbContext.Workers.Remove(worker);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
