@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace RocaWebApi.Api.Features.Workers
 {
@@ -53,7 +57,7 @@ namespace RocaWebApi.Api.Features.Workers
         }
 
         [HttpDelete("{workerId}")]
-        public async Task<ActionResult> DeleteAuthor(int workerId)
+        public async Task<ActionResult> DeleteWorker(int workerId)
         {
             var worker = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
             if (worker == null)
@@ -62,6 +66,22 @@ namespace RocaWebApi.Api.Features.Workers
             }
 
             _dbContext.Workers.Remove(worker);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{workerId}")]
+        public async Task<ActionResult> UpdateWorker(int workerId, [FromBody] WorkerUpdateDto workerDto)
+        {
+            var workerEntity = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
+            if (workerEntity == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(workerDto, workerEntity);
+
             await _dbContext.SaveChangesAsync();
 
             return NoContent();

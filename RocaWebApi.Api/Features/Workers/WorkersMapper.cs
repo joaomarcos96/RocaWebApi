@@ -9,6 +9,8 @@ namespace RocaWebApi.Api.Features.Workers
         {
             CreateMap<Worker, WorkerDto>();
             CreateMap<WorkerCreateDto, Worker>();
+            CreateMap<WorkerUpdateDto, Worker>();
+            CreateMap<Worker, WorkerUpdateDto>();
         }
     }
 }

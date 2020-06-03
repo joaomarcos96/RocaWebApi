@@ -117,5 +117,32 @@ namespace RocaWebApi.Tests.Features.Workers
 
             return _client.PostAsync(RESOURCE_URL, stringContent);
         }
+
+        [Fact]
+        public async Task Invalid_input_should_return_bad_request()
+        {
+            var json = "{\"name\": 123}";
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(RESOURCE_URL, stringContent);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Update_worker_should_return_no_content()
+        {
+            var responseForPostValidWorker = await PostValidWorker();
+            var jsonForPostWorker = await responseForPostValidWorker.Content.ReadAsStringAsync();
+            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, _jsonOptions);
+
+            createdWorker.Name = "Outro nome";
+
+            var jsonForPutWorker = JsonSerializer.Serialize(createdWorker, _jsonOptions);
+            var stringContent = new StringContent(jsonForPutWorker, Encoding.UTF8, "application/json");
+            var responseForPutWorker = await _client.PutAsync($"{RESOURCE_URL}/{createdWorker.Id}", stringContent);
+
+            Assert.Equal(HttpStatusCode.NoContent, responseForPutWorker.StatusCode);
+        }
     }
 }
