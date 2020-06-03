@@ -1,9 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using RocaWebApi.Api.Base.Entity;
 
 namespace RocaWebApi.Api.Features.Workers
 {
-    public class Worker
+    public class Worker : TrackableEntity
     {
         [Key]
         public int Id { get; set; }
