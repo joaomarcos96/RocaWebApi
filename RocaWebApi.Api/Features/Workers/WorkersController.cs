@@ -62,7 +62,7 @@ namespace RocaWebApi.Api.Features.Workers
             var worker = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
             if (worker == null)
             {
-                return NotFound();
+                return NoContent();
             }
 
             _dbContext.Workers.Remove(worker);
