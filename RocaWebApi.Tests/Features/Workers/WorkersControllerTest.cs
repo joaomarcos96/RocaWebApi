@@ -39,25 +39,30 @@ namespace RocaWebApi.Tests.Features.Workers
         }
 
         [Fact]
-        public async Task Get_newly_created_worker_should_return_that_worker()
+        public async Task Get_worker_should_return_ok()
         {
-            var responseForPostValidWorker = await PostValidWorker();
-            var jsonForPostWorker = await responseForPostValidWorker.Content.ReadAsStringAsync();
-            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, _jsonOptions);
+            var response = await _client.GetAsync($"{RESOURCE_URL}/1");
+            var json = await response.Content.ReadAsStringAsync();
+            var returnedWorker = JsonSerializer.Deserialize<Worker>(json, _jsonOptions);
 
-            var responseForGetWorker = await _client.GetAsync($"{RESOURCE_URL}/{createdWorker.Id}");
-            var jsonForGetWorker = await responseForGetWorker.Content.ReadAsStringAsync();
-            var returnedWorker = JsonSerializer.Deserialize<Worker>(jsonForGetWorker, _jsonOptions);
+            Assert.Equal(1, returnedWorker.Id);
 
-            Assert.Equal(returnedWorker.Id, createdWorker.Id);
-
-            Assert.Equal(HttpStatusCode.OK, responseForGetWorker.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
         [Fact]
         public async Task Valid_input_should_create_worker()
         {
-            var response = await PostValidWorker();
+            var json = JsonSerializer.Serialize(new Worker
+            {
+                Name = "Lúcãs com âçénto",
+                Phone = "(35) 12345-6789",
+                Address = "Distrito de Costas - MG"
+            }, _jsonOptions);
+
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(RESOURCE_URL, stringContent);
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         }
@@ -87,23 +92,9 @@ namespace RocaWebApi.Tests.Features.Workers
         [Fact]
         public async Task Should_delete_worker()
         {
-            var response = await _client.DeleteAsync($"{RESOURCE_URL}/1");
+            var response = await _client.DeleteAsync($"{RESOURCE_URL}/2");
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        }
-
-        private Task<HttpResponseMessage> PostValidWorker()
-        {
-            var json = JsonSerializer.Serialize(new Worker
-            {
-                Name = "Lúcãs com âçénto",
-                Phone = "(35) 12345-6789",
-                Address = "Distrito de Costas - MG"
-            }, _jsonOptions);
-
-            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
-
-            return _client.PostAsync(RESOURCE_URL, stringContent);
         }
 
         [Fact]
@@ -120,17 +111,28 @@ namespace RocaWebApi.Tests.Features.Workers
         [Fact]
         public async Task Update_worker_should_return_no_content()
         {
-            var responseForPostValidWorker = await PostValidWorker();
-            var jsonForPostWorker = await responseForPostValidWorker.Content.ReadAsStringAsync();
-            var createdWorker = JsonSerializer.Deserialize<Worker>(jsonForPostWorker, _jsonOptions);
+            var json = JsonSerializer.Serialize(new Worker
+            {
+                Name = "Different name",
+                Phone = "(35) 12345-6789",
+                Address = "Distrito de Costas - MG"
+            }, _jsonOptions);
 
-            createdWorker.Name = "Outro nome";
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.PutAsync($"{RESOURCE_URL}/1", stringContent);
 
-            var jsonForPutWorker = JsonSerializer.Serialize(createdWorker, _jsonOptions);
-            var stringContent = new StringContent(jsonForPutWorker, Encoding.UTF8, "application/json");
-            var responseForPutWorker = await _client.PutAsync($"{RESOURCE_URL}/{createdWorker.Id}", stringContent);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
 
-            Assert.Equal(HttpStatusCode.NoContent, responseForPutWorker.StatusCode);
+        [Fact]
+        public async Task Update_worker_that_does_not_exist_should_return_not_found()
+        {
+            var json = JsonSerializer.Serialize(new Worker { Name = "Different name" }, _jsonOptions);
+
+            var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _client.PutAsync($"{RESOURCE_URL}/0", stringContent);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }
 }
