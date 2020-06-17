@@ -1,22 +1,12 @@
-using System;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using RocaWebApi.Api.Base.Entity;
+using RocaWebApi.Api.Features.Users;
 
 namespace RocaWebApi.Api.Features.Workers
 {
     public class Worker : TrackableEntity
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        [MaxLength(120)]
-        public string Name { get; set; }
-
-        [MaxLength(20)]
-        public string Phone { get; set; }
-
-        [MaxLength(200)]
-        public string Address { get; set; }
+        [ForeignKey("Id")]
+        public User User { get; set; } = new User();
     }
 }

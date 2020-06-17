@@ -1,13 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace RocaWebApi.Api.Features.Workers
 {
@@ -15,76 +8,61 @@ namespace RocaWebApi.Api.Features.Workers
     [Route("api/workers")]
     public class WorkersController : ControllerBase
     {
-        private readonly ApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IWorkerService _service;
 
-        public WorkersController(ApplicationDbContext dbContext, IMapper mapper)
+        public WorkersController(IWorkerService service)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _service = service;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WorkerDto>>> GetWorkers()
         {
-            var workers = await _dbContext.Workers.ToListAsync();
+            var workers = await _service.GetAll();
             return Ok(_mapper.Map<IEnumerable<WorkerDto>>(workers));
         }
 
         [HttpGet("{workerId}", Name = "GetWorker")]
         public async Task<ActionResult<WorkerDto>> GetWorker(int workerId)
         {
-            var worker = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
-            if (worker == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(_mapper.Map<WorkerDto>(worker));
+            var worker = await _service.GetById(workerId);
+            return worker == null
+                ? (ActionResult<WorkerDto>) NotFound()
+                : Ok(_mapper.Map<WorkerDto>(worker));
         }
 
         [HttpPost]
         public async Task<ActionResult<WorkerDto>> CreateWorker(WorkerCreateDto workerDto)
         {
-            var workerEntity = _mapper.Map<Worker>(workerDto);
+            var user = _mapper.Map<Worker>(workerDto);
 
-            _dbContext.Workers.Add(workerEntity);
-            await _dbContext.SaveChangesAsync();
+            await _service.Create(user);
 
-            var worker = _mapper.Map<WorkerDto>(workerEntity);
+            var worker = _mapper.Map<WorkerDto>(user);
 
-            return CreatedAtRoute("GetWorker", new { workerId = worker.Id }, worker);
+            return CreatedAtRoute(
+                "GetWorker",
+                new {workerId = worker.Id},
+                worker);
         }
 
         [HttpDelete("{workerId}")]
         public async Task<ActionResult> DeleteWorker(int workerId)
         {
-            var worker = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
-            if (worker == null)
-            {
-                return NoContent();
-            }
-
-            _dbContext.Workers.Remove(worker);
-            await _dbContext.SaveChangesAsync();
+            await _service.Delete(workerId);
 
             return NoContent();
         }
 
         [HttpPut("{workerId}")]
-        public async Task<ActionResult> UpdateWorker(int workerId, [FromBody] WorkerUpdateDto workerDto)
+        public async Task<ActionResult> UpdateWorker(
+            int workerId,
+            [FromBody] WorkerUpdateDto workerDto)
         {
-            var workerEntity = await _dbContext.Workers.FirstOrDefaultAsync(worker => worker.Id == workerId);
-            if (workerEntity == null)
-            {
-                return NotFound();
-            }
+            var workerEntity = _mapper.Map<Worker>(workerDto);
+            var workerUpdated = await _service.Update(workerId, workerEntity);
 
-            _mapper.Map(workerDto, workerEntity);
-
-            await _dbContext.SaveChangesAsync();
-
-            return NoContent();
+            return workerUpdated == null ? (ActionResult) NotFound() : NoContent();
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RocaWebApi.Api;
@@ -9,9 +10,10 @@ using RocaWebApi.Api;
 namespace RocaWebApi.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200610001216_ConvertWorkerEntityToUserEntity")]
+    partial class ConvertWorkerEntityToUserEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,40 +61,6 @@ namespace RocaWebApi.Api.Migrations
                         .HasName("pk_users");
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("RocaWebApi.Api.Features.Workers.Worker", b =>
-                {
-                    b.Property<int?>("Id")
-                        .HasColumnName("id")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnName("created_at")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("DeletedAt")
-                        .HasColumnName("deleted_at")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnName("updated_at")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id")
-                        .HasName("pk_workers");
-
-                    b.ToTable("workers");
-                });
-
-            modelBuilder.Entity("RocaWebApi.Api.Features.Workers.Worker", b =>
-                {
-                    b.HasOne("RocaWebApi.Api.Features.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("Id")
-                        .HasConstraintName("fk_workers_users_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
