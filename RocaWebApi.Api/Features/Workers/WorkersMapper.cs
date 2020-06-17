@@ -1,4 +1,3 @@
-using AutoMapper;
 using RocaWebApi.Api.Features.Users;
 
 namespace RocaWebApi.Api.Features.Workers

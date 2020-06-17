@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace RocaWebApi.Api.Features.Users
@@ -19,12 +16,10 @@ namespace RocaWebApi.Api.Features.Users
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _dbContext;
-        private readonly IMapper _mapper;
 
-        public UserService(ApplicationDbContext dbContext, IMapper mapper)
+        public UserService(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<User>> GetAll()
@@ -54,7 +49,7 @@ namespace RocaWebApi.Api.Features.Users
                 return null;
             }
 
-            _mapper.Map(user, userEntity);
+            // _mapper.Map(user, userEntity);
 
             await _dbContext.SaveChangesAsync();
 
