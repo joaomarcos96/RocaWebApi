@@ -30,7 +30,10 @@ namespace RocaWebApi.Api.Features.Workers
 
         public Task<Worker> GetById(int id)
         {
-            return _dbContext.Workers.FirstOrDefaultAsync(u => u.User.Id == id);
+            return _dbContext
+                .Workers
+                .Include(worker => worker.User)
+                .FirstOrDefaultAsync(w => w.User.Id == id);
         }
 
         public async Task<Worker> Create(Worker worker)
@@ -43,7 +46,7 @@ namespace RocaWebApi.Api.Features.Workers
 
         public async Task<Worker> Update(int id, Worker worker)
         {
-            var workerEntity = await _dbContext.Workers.FirstOrDefaultAsync(u => u.User.Id == id);
+            var workerEntity = await _dbContext.Workers.FirstOrDefaultAsync(w => w.User.Id == id);
             if (workerEntity == null)
             {
                 return null;
@@ -58,7 +61,7 @@ namespace RocaWebApi.Api.Features.Workers
 
         public async Task Delete(int id)
         {
-            var worker = await _dbContext.Workers.FirstOrDefaultAsync(u => u.User.Id == id);
+            var worker = await _dbContext.Workers.FirstOrDefaultAsync(w => w.User.Id == id);
             if (worker == null)
             {
                 return;

@@ -1,27 +1,22 @@
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using RocaWebApi.Api.Features.Users;
 using RocaWebApi.Api.Features.Workers;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace RocaWebApi.Tests.Features.Workers
 {
     public class WorkersControllerTest : IClassFixture<TestFixture>
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private const string ResourceUrl = "/api/workers";
 
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public WorkersControllerTest(TestFixture fixture, ITestOutputHelper testOutputHelper)
+        public WorkersControllerTest(TestFixture fixture)
         {
-            _testOutputHelper = testOutputHelper;
             _client = fixture.Client;
             _jsonOptions = fixture.DefaultJsonSerializerOptions;
         }
@@ -74,7 +69,7 @@ namespace RocaWebApi.Tests.Features.Workers
         [Fact]
         public async Task Missing_required_property_post_should_return_unprocessable_entity()
         {
-            var json = JsonSerializer.Serialize(new Worker(), _jsonOptions);
+            var json = JsonSerializer.Serialize(new WorkerCreateDto(), _jsonOptions);
 
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -132,10 +127,10 @@ namespace RocaWebApi.Tests.Features.Workers
         public async Task Update_worker_that_does_not_exist_should_return_not_found()
         {
             var json = JsonSerializer.Serialize(
-            new WorkerUpdateDto
-            {
-                Name = "Different name"
-            }, _jsonOptions);
+                new WorkerUpdateDto
+                {
+                    Name = "Different name"
+                }, _jsonOptions);
 
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _client.PutAsync($"{ResourceUrl}/0", stringContent);
