@@ -70,6 +70,7 @@ namespace RocaWebApi.Tests
                 {
                     new Worker
                     {
+                        Id = 1,
                         User = new User
                         {
                             Id = 1,
@@ -80,6 +81,7 @@ namespace RocaWebApi.Tests
                     },
                     new Worker
                     {
+                        Id = 2,
                         User = new User
                         {
                             Id = 2,

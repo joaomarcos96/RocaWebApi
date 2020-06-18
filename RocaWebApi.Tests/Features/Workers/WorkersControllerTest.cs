@@ -42,9 +42,9 @@ namespace RocaWebApi.Tests.Features.Workers
         {
             var response = await _client.GetAsync($"{ResourceUrl}/1");
             var json = await response.Content.ReadAsStringAsync();
-            var returnedWorker = JsonSerializer.Deserialize<Worker>(json, _jsonOptions);
+            var returnedWorker = JsonSerializer.Deserialize<WorkerDto>(json, _jsonOptions);
 
-            Assert.Equal(1, returnedWorker.User.Id);
+            Assert.Equal(1, returnedWorker.Id);
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
