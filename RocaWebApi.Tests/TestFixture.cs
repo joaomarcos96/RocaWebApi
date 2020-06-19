@@ -9,6 +9,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using RocaWebApi.Api;
+using RocaWebApi.Api.Features.Users;
 using RocaWebApi.Api.Features.Workers;
 
 namespace RocaWebApi.Tests
@@ -21,7 +22,7 @@ namespace RocaWebApi.Tests
 
         public HttpClient Client { get; }
 
-        public JsonSerializerOptions DefaultJsonSerializerOptions { get; private set; }
+        public JsonSerializerOptions DefaultJsonSerializerOptions { get; }
 
         public TestFixture()
         {
@@ -33,10 +34,7 @@ namespace RocaWebApi.Tests
                     _connection = new SqliteConnection("DataSource=file::memory:?cache=shared");
                     _connection.Open();
 
-                    services.AddDbContext<ApplicationDbContext>(options =>
-                    {
-                        options.UseSqlite(_connection);
-                    });
+                    services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
 
                     var serviceProvider = services.BuildServiceProvider();
 
@@ -73,14 +71,22 @@ namespace RocaWebApi.Tests
                     new Worker
                     {
                         Id = 1,
-                        Name = "Lucas Costa",
-                        Phone = "(35) 12345-6789",
-                        Address = "Distrito de Costas - MG"
+                        User = new User
+                        {
+                            Id = 1,
+                            Name = "Lucas Costa",
+                            Phone = "(35) 12345-6789",
+                            Address = "Distrito de Costas - MG"
+                        }
                     },
                     new Worker
                     {
                         Id = 2,
-                        Name = "Worker to be deleted"
+                        User = new User
+                        {
+                            Id = 2,
+                            Name = "Worker to be deleted"
+                        }
                     }
                 }
             );
@@ -93,11 +99,8 @@ namespace RocaWebApi.Tests
             Client.Dispose();
             _server.Dispose();
 
-            if (_connection != null)
-            {
-                _connection.Close();
-                _connection = null;
-            }
+            _connection?.Close();
+            _connection = null;
         }
     }
 }

@@ -6,12 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RocaWebApi.Api.Base.Entity;
+using RocaWebApi.Api.Features.Users;
 using RocaWebApi.Api.Features.Workers;
 
 namespace RocaWebApi.Api
 {
     public class ApplicationDbContext : DbContext
     {
+        public DbSet<User> Users { get; set; }
         public DbSet<Worker> Workers { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options)
@@ -33,11 +35,17 @@ namespace RocaWebApi.Api
                     var parameter = Expression.Parameter(entityType.ClrType);
 
                     // EF.Property<DateTimeOffset>(post, "DeletedAt")
-                    var propertyMethodInfo = typeof(EF).GetMethod("Property").MakeGenericMethod(typeof(DateTimeOffset?));
-                    var deletedAtProperty = Expression.Call(propertyMethodInfo, parameter, Expression.Constant("DeletedAt"));
+                    var propertyMethodInfo =
+                        typeof(EF).GetMethod("Property")?.MakeGenericMethod(typeof(DateTimeOffset?));
+
+                    if (propertyMethodInfo == null) continue;
+
+                    var deletedAtProperty = Expression.Call(propertyMethodInfo, parameter,
+                        Expression.Constant("DeletedAt"));
 
                     // EF.Property<DateTimeOffset>(post, "DeletedAt") == null
-                    var compareExpression = Expression.MakeBinary(ExpressionType.Equal, deletedAtProperty, Expression.Constant(null));
+                    var compareExpression = Expression.MakeBinary(ExpressionType.Equal, deletedAtProperty,
+                        Expression.Constant(null));
 
                     // post => EF.Property<DateTimeOffset>(post, "DeletedAt") == null
                     var lambda = Expression.Lambda(compareExpression, parameter);
@@ -83,19 +91,19 @@ namespace RocaWebApi.Api
                 {
                     var now = DateTimeOffset.UtcNow;
 
-                    if (entry.State == EntityState.Added)
+                    switch (entry.State)
                     {
-                        trackable.CreatedAt = now;
-                    }
-                    else if (entry.State == EntityState.Modified)
-                    {
-                        trackable.CreatedAt = now;
-                        trackable.UpdatedAt = now;
-                    }
-                    else if (entry.State == EntityState.Deleted)
-                    {
-                        entry.State = EntityState.Modified;
-                        trackable.DeletedAt = now;
+                        case EntityState.Added:
+                            trackable.CreatedAt = now;
+                            break;
+                        case EntityState.Modified:
+                            trackable.CreatedAt = now;
+                            trackable.UpdatedAt = now;
+                            break;
+                        case EntityState.Deleted:
+                            entry.State = EntityState.Modified;
+                            trackable.DeletedAt = now;
+                            break;
                     }
                 }
             }

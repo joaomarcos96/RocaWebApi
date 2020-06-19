@@ -1,5 +1,4 @@
 using System;
-using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using RocaWebApi.Api.Features.Users;
+using RocaWebApi.Api.Features.Workers;
 
 namespace RocaWebApi.Api
 {
@@ -21,7 +22,7 @@ namespace RocaWebApi.Api
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -52,7 +53,7 @@ namespace RocaWebApi.Api
 
                             return new UnprocessableEntityObjectResult(problemDetails)
                             {
-                                ContentTypes = { "application/problem+json" }
+                                ContentTypes = {"application/problem+json"}
                             };
                         }
 
@@ -61,16 +62,20 @@ namespace RocaWebApi.Api
 
                         return new BadRequestObjectResult(problemDetails)
                         {
-                            ContentTypes = { "application/problem+json" }
+                            ContentTypes = {"application/problem+json"}
                         };
                     };
                 });
 
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Roça Web API", Version = "v1" });
+                c.SwaggerDoc(
+                    "v1",
+                    new OpenApiInfo
+                    {
+                        Title = "Roça Web API",
+                        Version = "v1"
+                    });
             });
 
             services.AddDbContext<ApplicationDbContext>(options =>
@@ -79,6 +84,9 @@ namespace RocaWebApi.Api
                     .UseNpgsql(Configuration.GetConnectionString("DefaultConnection"))
                     .UseSnakeCaseNamingConvention();
             });
+
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IWorkerService, WorkerService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -106,10 +114,7 @@ namespace RocaWebApi.Api
 
             app.UseAuthorization();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
 }
