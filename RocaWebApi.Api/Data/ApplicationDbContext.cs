@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +7,7 @@ using RocaWebApi.Api.Base.Entity;
 using RocaWebApi.Api.Features.Users;
 using RocaWebApi.Api.Features.Workers;
 
-namespace RocaWebApi.Api
+namespace RocaWebApi.Api.Data
 {
     public class ApplicationDbContext : DbContext
     {
