@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RocaWebApi.Api;
+using RocaWebApi.Api.Data;
 using RocaWebApi.Api.Features.Users;
 using RocaWebApi.Api.Features.Workers;
 
 namespace RocaWebApi.Tests
 {
-    public class TestFixture
+    public class SharedFixture
     {
+        private const string Environment = "Testing";
+
         private DbConnection _connection;
 
         private readonly TestServer _server;
@@ -24,11 +28,15 @@ namespace RocaWebApi.Tests
 
         public JsonSerializerOptions DefaultJsonSerializerOptions { get; }
 
-        public TestFixture()
+        public SharedFixture()
         {
             var builder = new WebHostBuilder()
+                .UseEnvironment(Environment)
+                .ConfigureAppConfiguration(configurationBuilder =>
+                {
+                    configurationBuilder.AddJsonFile($"appsettings.{Environment}.json");
+                })
                 .UseStartup<Startup>()
-                .UseEnvironment("Testing")
                 .ConfigureServices(services =>
                 {
                     _connection = new SqliteConnection("DataSource=file::memory:?cache=shared");
@@ -96,8 +104,8 @@ namespace RocaWebApi.Tests
 
         public void Dispose()
         {
-            Client.Dispose();
-            _server.Dispose();
+            Client?.Dispose();
+            _server?.Dispose();
 
             _connection?.Close();
             _connection = null;

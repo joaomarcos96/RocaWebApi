@@ -3,19 +3,21 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using FluentAssertions;
 using RocaWebApi.Api.Features.Workers;
 using Xunit;
 
 namespace RocaWebApi.Tests.Features.Workers
 {
-    public class WorkersControllerTest : IClassFixture<TestFixture>
+    [Collection(nameof(SharedFixture))]
+    public class WorkersControllerTest
     {
         private const string ResourceUrl = "/api/workers";
 
         private readonly HttpClient _client;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public WorkersControllerTest(TestFixture fixture)
+        public WorkersControllerTest(SharedFixture fixture)
         {
             _client = fixture.Client;
             _jsonOptions = fixture.DefaultJsonSerializerOptions;
@@ -26,7 +28,7 @@ namespace RocaWebApi.Tests.Features.Workers
         {
             var response = await _client.GetAsync(ResourceUrl);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
@@ -34,7 +36,7 @@ namespace RocaWebApi.Tests.Features.Workers
         {
             var response = await _client.GetAsync($"{ResourceUrl}/0");
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
 
         [Fact]
@@ -44,9 +46,9 @@ namespace RocaWebApi.Tests.Features.Workers
             var json = await response.Content.ReadAsStringAsync();
             var returnedWorker = JsonSerializer.Deserialize<WorkerDto>(json, _jsonOptions);
 
-            Assert.Equal(1, returnedWorker.Id);
+            returnedWorker.Id.Should().Be(1);
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
@@ -63,7 +65,7 @@ namespace RocaWebApi.Tests.Features.Workers
 
             var response = await _client.PostAsync(ResourceUrl, stringContent);
 
-            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
         [Fact]
@@ -75,7 +77,7 @@ namespace RocaWebApi.Tests.Features.Workers
 
             var response = await _client.PostAsync(ResourceUrl, stringContent);
 
-            Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
         }
 
         [Fact]
@@ -85,7 +87,7 @@ namespace RocaWebApi.Tests.Features.Workers
 
             var response = await _client.PostAsync(ResourceUrl, stringContent);
 
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -93,7 +95,7 @@ namespace RocaWebApi.Tests.Features.Workers
         {
             var response = await _client.DeleteAsync($"{ResourceUrl}/2");
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
         [Fact]
@@ -104,7 +106,7 @@ namespace RocaWebApi.Tests.Features.Workers
 
             var response = await _client.PostAsync(ResourceUrl, stringContent);
 
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
         [Fact]
@@ -120,7 +122,7 @@ namespace RocaWebApi.Tests.Features.Workers
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _client.PutAsync($"{ResourceUrl}/1", stringContent);
 
-            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
         [Fact]
@@ -135,7 +137,7 @@ namespace RocaWebApi.Tests.Features.Workers
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _client.PutAsync($"{ResourceUrl}/0", stringContent);
 
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }
